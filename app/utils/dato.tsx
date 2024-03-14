@@ -9,7 +9,7 @@ export default async function datocms<
 	context: AppLoadContext,
 	document: TypedDocumentNode<TResult, TVariables>,
 	variables?: TVariables,
-): Promise<TResult> {
+): Promise<{ result: TResult; cacheTags: string | null }> {
 	const query = print(document);
 
 	const includeDrafts =
@@ -21,6 +21,7 @@ export default async function datocms<
 			"Content-Type": "application/json",
 			Accept: "application/json",
 			"X-Exclude-Invalid": "true",
+			"Fastly-Debug": "1",
 			Authorization: `Bearer ${context.cloudflare.env.DATOCMS_READONLY_API_TOKEN}`,
 			...(includeDrafts ? { "X-Include-Drafts": "true" } : {}),
 		},
@@ -39,5 +40,8 @@ export default async function datocms<
 		)}, Include drafts: ${includeDrafts}, Response: ${JSON.stringify(body)}`;
 	}
 
-	return body.data;
+	return {
+		result: body.data,
+		cacheTags: response.headers.get("surrogate-key"),
+	};
 }

@@ -19,28 +19,33 @@ export const meta: MetaFunction = () => {
 };
 
 const query = graphql(/* GraphQL */ `
-	query Home {
-		entries: allSongs(orderBy: _firstPublishedAt_DESC) {
-			id
-			name
-		}
-	}
+  query Home {
+    entries: allSongs(orderBy: _firstPublishedAt_DESC) {
+      id
+      name
+    }
+  }
 `);
 
 export const loader = async ({ context }: LoaderFunctionArgs) => {
-	const { entries } = await datocms(context, query);
+	const {
+		result: { entries },
+		cacheTags,
+	} = await datocms(context, query);
 
 	return json(
-		{ entries },
+		{ entries, cacheTags, generatedAt: new Date().toLocaleTimeString() },
 		{
-			headers: {
-				"surrogate-key": "foo bar",
-				// Fastly CDN can cache this resource forever (it will be explicitely invalidated using tags)
-				"surrogate-control": "max-age=31536000",
-				// Browser caching mechanism is declared globally on entry.server.tsx:
-				// cache-control: no-cache, max-age=0, must-revalidate
-				// So they can cache loader and page responses, but need to revalidate with etag/if-none-match
-			},
+			headers: cacheTags
+				? {
+						"surrogate-key": cacheTags,
+						// Fastly CDN can cache this resource forever (it will be explicitely invalidated using tags)
+						"surrogate-control": "max-age=31536000",
+						// Browser caching mechanism is declared globally on entry.server.tsx:
+						// cache-control: no-cache, max-age=0, must-revalidate
+						// So they can cache loader and page responses, but need to revalidate with etag/if-none-match
+				  }
+				: {},
 		},
 	);
 };
@@ -50,7 +55,7 @@ export const headers: HeadersFunction = ({ loaderHeaders }) => {
 };
 
 export default function Index() {
-	const { entries } = useLoaderData<typeof loader>();
+	const { entries, generatedAt, cacheTags } = useLoaderData<typeof loader>();
 
 	return (
 		<div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
@@ -60,7 +65,8 @@ export default function Index() {
 					<li key={entry.id}>{entry.name}</li>
 				))}
 			</ul>
-			<p>Last change: {new Date().toLocaleTimeString()}</p>
+			<p>Last change: {generatedAt}</p>
+			<p>Tags: {cacheTags}</p>
 		</div>
 	);
 }
