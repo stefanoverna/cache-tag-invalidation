@@ -1,0 +1,22 @@
+sequenceDiagram
+    actor v1 as First visitor
+    actor v2 as Other visitors
+    loop
+        v1->>+Fastly: Visits page
+        Fastly->>Remix: Not in cache: forwards request to origin
+        Remix->>DatoCMS: Requests content via GraphQL
+        DatoCMS->>Remix: Returns content + related cache tags as `X-Cache-Tags`
+        Remix->>Fastly: Returns final page, forwards tags as `Surrogate-Key`
+        Fastly->>Fastly: Stores result in edge cache, with tags
+        Fastly->>-v1: Forwards page to visitor
+        loop
+            v2->>+Fastly: Subsequent visits to same page
+            Fastly->>-v2: Returns cached content from edge
+        end
+        actor Editor
+        Editor->>DatoCMS: Changes content related to page
+        DatoCMS->>Remix: Sends webhook with keys to invalidate
+        Remix->>Fastly: Sends request to purge by surrogate key
+        Fastly->>Fastly: Removes all tagged content from edges cache
+    end
+

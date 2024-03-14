@@ -5,14 +5,16 @@
   "type": "module",
   "scripts": {
     "build": "remix vite:build",
-    "deploy": "npm run build && wrangler pages deploy ./build/client",
+    "deploy": "npm run build && cp _headers build/client && wrangler pages deploy ./build/client",
     "dev": "remix vite:dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "wrangler pages dev ./build/client",
     "typecheck": "tsc",
     "typegen": "wrangler types",
     "preview": "npm run build && wrangler pages dev ./build/client",
-    "build-cf-types": "wrangler types"
+    "build-cf-types": "wrangler types",
+    "generate-ts-types": "graphql-codegen --config graphql.config.ts",
+    "generate-ts-types:watch": "graphql-codegen --watch --config graphql.config.ts"
   },
   "dependencies": {
     "@remix-run/cloudflare": "^2.8.0",
@@ -25,11 +27,18 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240312.0",
+    "@graphql-codegen/cli": "^5.0.2",
+    "@graphql-codegen/typed-document-node": "^5.0.6",
+    "@graphql-codegen/typescript": "^4.0.6",
+    "@graphql-codegen/typescript-operations": "^4.2.0",
+    "@graphql-typed-document-node/core": "^3.2.0",
+    "@parcel/watcher": "^2.4.1",
     "@remix-run/dev": "^2.8.0",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
     "@typescript-eslint/parser": "^6.7.4",
+    "dotenv": "^16.4.5",
     "eslint": "^8.38.0",
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.28.1",
