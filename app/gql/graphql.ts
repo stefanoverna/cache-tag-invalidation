@@ -44,6 +44,7 @@ export type ArtistModelFilter = {
   hotness?: InputMaybe<FloatFilter>;
   id?: InputMaybe<ItemIdFilter>;
   name?: InputMaybe<StringFilter>;
+  slug?: InputMaybe<SlugFilter>;
 };
 
 export enum ArtistModelOrderBy {
@@ -78,6 +79,9 @@ export enum ArtistModelOrderBy {
 /** Record of type 👨‍🎤 Artist (artist) */
 export type ArtistRecord = RecordInterface & {
   __typename?: 'ArtistRecord';
+  _allReferencingSongs: Array<SongRecord>;
+  /** Returns meta information regarding a record collection */
+  _allReferencingSongsMeta: CollectionMetadata;
   _createdAt: Scalars['DateTime']['output'];
   /** Editing URL */
   _editingUrl?: Maybe<Scalars['String']['output']>;
@@ -95,7 +99,28 @@ export type ArtistRecord = RecordInterface & {
   familiarity?: Maybe<Scalars['FloatType']['output']>;
   hotness?: Maybe<Scalars['FloatType']['output']>;
   id: Scalars['ItemId']['output'];
-  name?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
+};
+
+
+/** Record of type 👨‍🎤 Artist (artist) */
+export type ArtistRecord_AllReferencingSongsArgs = {
+  fallbackLocales?: InputMaybe<Array<SiteLocale>>;
+  filter?: InputMaybe<SongModelFilter>;
+  first?: InputMaybe<Scalars['IntType']['input']>;
+  locale?: InputMaybe<SiteLocale>;
+  orderBy?: InputMaybe<Array<InputMaybe<SongModelOrderBy>>>;
+  skip?: InputMaybe<Scalars['IntType']['input']>;
+  through?: InputMaybe<InverseRelationshipFilterBetweenSongAndArtist>;
+};
+
+
+/** Record of type 👨‍🎤 Artist (artist) */
+export type ArtistRecord_AllReferencingSongsMetaArgs = {
+  filter?: InputMaybe<SongModelFilter>;
+  locale?: InputMaybe<SiteLocale>;
+  through?: InputMaybe<InverseRelationshipFilterBetweenSongAndArtist>;
 };
 
 
@@ -140,6 +165,11 @@ export type ColorField = {
   red: Scalars['IntType']['output'];
 };
 
+/** Linking fields */
+export enum CompilationModelFieldsReferencingSongModel {
+  CompilationSongs = 'compilation_songs'
+}
+
 export type CompilationModelFilter = {
   AND?: InputMaybe<Array<InputMaybe<CompilationModelFilter>>>;
   OR?: InputMaybe<Array<InputMaybe<CompilationModelFilter>>>;
@@ -154,6 +184,7 @@ export type CompilationModelFilter = {
   hotness?: InputMaybe<FloatFilter>;
   id?: InputMaybe<ItemIdFilter>;
   name?: InputMaybe<StringFilter>;
+  slug?: InputMaybe<SlugFilter>;
   songs?: InputMaybe<LinksFilter>;
 };
 
@@ -200,7 +231,8 @@ export type CompilationRecord = RecordInterface & {
   _updatedAt: Scalars['DateTime']['output'];
   hotness?: Maybe<Scalars['FloatType']['output']>;
   id: Scalars['ItemId']['output'];
-  name?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
   songs: Array<SongRecord>;
 };
 
@@ -1856,6 +1888,38 @@ export type IntegerFilter = {
   neq?: InputMaybe<Scalars['IntType']['input']>;
 };
 
+/** Specifies how to filter by linking fields */
+export type InverseRelationshipFieldFilterBetweenCompilationAndSong = {
+  /** Filter linking records that reference current record in at least one of the specified fields */
+  anyIn?: InputMaybe<Array<CompilationModelFieldsReferencingSongModel>>;
+  /** Filter linking records that do not reference current record in any of the specified fields */
+  notIn?: InputMaybe<Array<CompilationModelFieldsReferencingSongModel>>;
+};
+
+/** Specifies how to filter by linking fields */
+export type InverseRelationshipFieldFilterBetweenSongAndArtist = {
+  /** Filter linking records that reference current record in at least one of the specified fields */
+  anyIn?: InputMaybe<Array<SongModelFieldsReferencingArtistModel>>;
+  /** Filter linking records that do not reference current record in any of the specified fields */
+  notIn?: InputMaybe<Array<SongModelFieldsReferencingArtistModel>>;
+};
+
+/** Specifies how to filter linking records */
+export type InverseRelationshipFilterBetweenCompilationAndSong = {
+  /** Specifies how to filter by linking fields */
+  fields?: InputMaybe<InverseRelationshipFieldFilterBetweenCompilationAndSong>;
+  /** Specifies how to filter by linking locales */
+  locales?: InputMaybe<LinkingLocalesFilter>;
+};
+
+/** Specifies how to filter linking records */
+export type InverseRelationshipFilterBetweenSongAndArtist = {
+  /** Specifies how to filter by linking fields */
+  fields?: InputMaybe<InverseRelationshipFieldFilterBetweenSongAndArtist>;
+  /** Specifies how to filter by linking locales */
+  locales?: InputMaybe<LinkingLocalesFilter>;
+};
+
 /** Specifies how to filter by ID */
 export type ItemIdFilter = {
   /** Search the record with the specified ID */
@@ -1886,6 +1950,20 @@ export type LinkFilter = {
   neq?: InputMaybe<Scalars['ItemId']['input']>;
   /** Filter records not linked to one of the specified records */
   notIn?: InputMaybe<Array<InputMaybe<Scalars['ItemId']['input']>>>;
+};
+
+/** Linking locales */
+export enum LinkingLocale {
+  NonLocalized = '_nonLocalized',
+  En = 'en'
+}
+
+/** Specifies how to filter by linking locales */
+export type LinkingLocalesFilter = {
+  /** Filter linking records that link to current record in at least one of the specified locales */
+  anyIn?: InputMaybe<Array<LinkingLocale>>;
+  /** Filter linking records that do not link to current record in any of the specified locales */
+  notIn?: InputMaybe<Array<LinkingLocale>>;
 };
 
 /** Specifies how to filter Multiple-links fields */
@@ -2169,6 +2247,23 @@ export enum SiteLocale {
   En = 'en'
 }
 
+/** Specifies how to filter Slug fields */
+export type SlugFilter = {
+  /** Search for records with an exact match */
+  eq?: InputMaybe<Scalars['String']['input']>;
+  /** Filter records that have one of the specified slugs */
+  in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  /** Exclude records with an exact match */
+  neq?: InputMaybe<Scalars['String']['input']>;
+  /** Filter records that do have one of the specified slugs */
+  notIn?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+/** Linking fields */
+export enum SongModelFieldsReferencingArtistModel {
+  SongArtist = 'song_artist'
+}
+
 export type SongModelFilter = {
   AND?: InputMaybe<Array<InputMaybe<SongModelFilter>>>;
   OR?: InputMaybe<Array<InputMaybe<SongModelFilter>>>;
@@ -2220,6 +2315,9 @@ export enum SongModelOrderBy {
 /** Record of type 🎵 Song (song) */
 export type SongRecord = RecordInterface & {
   __typename?: 'SongRecord';
+  _allReferencingCompilations: Array<CompilationRecord>;
+  /** Returns meta information regarding a record collection */
+  _allReferencingCompilationsMeta: CollectionMetadata;
   _createdAt: Scalars['DateTime']['output'];
   /** Editing URL */
   _editingUrl?: Maybe<Scalars['String']['output']>;
@@ -2233,12 +2331,32 @@ export type SongRecord = RecordInterface & {
   _status: ItemStatus;
   _unpublishingScheduledAt?: Maybe<Scalars['DateTime']['output']>;
   _updatedAt: Scalars['DateTime']['output'];
-  artist?: Maybe<ArtistRecord>;
+  artist: ArtistRecord;
   durationSecs?: Maybe<Scalars['IntType']['output']>;
-  externalId?: Maybe<Scalars['String']['output']>;
+  externalId: Scalars['String']['output'];
   id: Scalars['ItemId']['output'];
-  name?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
   year?: Maybe<Scalars['IntType']['output']>;
+};
+
+
+/** Record of type 🎵 Song (song) */
+export type SongRecord_AllReferencingCompilationsArgs = {
+  fallbackLocales?: InputMaybe<Array<SiteLocale>>;
+  filter?: InputMaybe<CompilationModelFilter>;
+  first?: InputMaybe<Scalars['IntType']['input']>;
+  locale?: InputMaybe<SiteLocale>;
+  orderBy?: InputMaybe<Array<InputMaybe<CompilationModelOrderBy>>>;
+  skip?: InputMaybe<Scalars['IntType']['input']>;
+  through?: InputMaybe<InverseRelationshipFilterBetweenCompilationAndSong>;
+};
+
+
+/** Record of type 🎵 Song (song) */
+export type SongRecord_AllReferencingCompilationsMetaArgs = {
+  filter?: InputMaybe<CompilationModelFilter>;
+  locale?: InputMaybe<SiteLocale>;
+  through?: InputMaybe<InverseRelationshipFilterBetweenCompilationAndSong>;
 };
 
 
@@ -2696,7 +2814,48 @@ export type FocalPoint = {
 export type HomeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type HomeQuery = { __typename?: 'Query', entries: Array<{ __typename?: 'SongRecord', id: string, name?: string | null }> };
+export type HomeQuery = { __typename?: 'Query', artists: Array<{ __typename?: 'ArtistRecord', slug: string, name: string }>, compilations: Array<{ __typename?: 'CompilationRecord', slug: string, name: string }> };
+
+export type ArtistQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
 
 
-export const HomeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Home"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"entries"},"name":{"kind":"Name","value":"allSongs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"EnumValue","value":"_firstPublishedAt_DESC"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<HomeQuery, HomeQueryVariables>;
+export type ArtistQuery = { __typename?: 'Query', artist?: (
+    { __typename?: 'ArtistRecord', slug: string, name: string, hotness?: number | null, familiarity?: number | null, songs: Array<{ __typename?: 'SongRecord', externalId: string, name: string, year?: number | null, compilations: Array<{ __typename?: 'CompilationRecord', slug: string, name: string }> }> }
+    & { ' $fragmentRefs'?: { 'SeoMetaTags_ArtistRecord_Fragment': SeoMetaTags_ArtistRecord_Fragment } }
+  ) | null };
+
+export type CompilationQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+export type CompilationQuery = { __typename?: 'Query', compilation?: (
+    { __typename?: 'CompilationRecord', slug: string, name: string, hotness?: number | null, songs: Array<{ __typename?: 'SongRecord', externalId: string, name: string, artist: { __typename?: 'ArtistRecord', name: string, slug: string } }> }
+    & { ' $fragmentRefs'?: { 'SeoMetaTags_CompilationRecord_Fragment': SeoMetaTags_CompilationRecord_Fragment } }
+  ) | null };
+
+export type SongQueryVariables = Exact<{
+  externalId: Scalars['String']['input'];
+}>;
+
+
+export type SongQuery = { __typename?: 'Query', song?: (
+    { __typename?: 'SongRecord', externalId: string, name: string, year?: number | null, durationSecs?: number | null, artist: { __typename?: 'ArtistRecord', slug: string, name: string }, compilations: Array<{ __typename?: 'CompilationRecord', slug: string, name: string }> }
+    & { ' $fragmentRefs'?: { 'SeoMetaTags_SongRecord_Fragment': SeoMetaTags_SongRecord_Fragment } }
+  ) | null };
+
+type SeoMetaTags_ArtistRecord_Fragment = { __typename?: 'ArtistRecord', _seoMetaTags: Array<{ __typename?: 'Tag', tag: string, attributes?: Record<string, string> | null, content?: string | null }> } & { ' $fragmentName'?: 'SeoMetaTags_ArtistRecord_Fragment' };
+
+type SeoMetaTags_CompilationRecord_Fragment = { __typename?: 'CompilationRecord', _seoMetaTags: Array<{ __typename?: 'Tag', tag: string, attributes?: Record<string, string> | null, content?: string | null }> } & { ' $fragmentName'?: 'SeoMetaTags_CompilationRecord_Fragment' };
+
+type SeoMetaTags_SongRecord_Fragment = { __typename?: 'SongRecord', _seoMetaTags: Array<{ __typename?: 'Tag', tag: string, attributes?: Record<string, string> | null, content?: string | null }> } & { ' $fragmentName'?: 'SeoMetaTags_SongRecord_Fragment' };
+
+export type SeoMetaTagsFragment = SeoMetaTags_ArtistRecord_Fragment | SeoMetaTags_CompilationRecord_Fragment | SeoMetaTags_SongRecord_Fragment;
+
+export const SeoMetaTagsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SeoMetaTags"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"RecordInterface"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_seoMetaTags"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tag"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}}]}}]} as unknown as DocumentNode<SeoMetaTagsFragment, unknown>;
+export const HomeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Home"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"artists"},"name":{"kind":"Name","value":"allArtists"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"EnumValue","value":"hotness_DESC"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","alias":{"kind":"Name","value":"compilations"},"name":{"kind":"Name","value":"allCompilations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"EnumValue","value":"hotness_DESC"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<HomeQuery, HomeQueryVariables>;
+export const ArtistDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Artist"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"slug"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"artist"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"slug"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"slug"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"SeoMetaTags"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"hotness"}},{"kind":"Field","name":{"kind":"Name","value":"familiarity"}},{"kind":"Field","alias":{"kind":"Name","value":"songs"},"name":{"kind":"Name","value":"_allReferencingSongs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"EnumValue","value":"year_ASC"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"externalId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"year"}},{"kind":"Field","alias":{"kind":"Name","value":"compilations"},"name":{"kind":"Name","value":"_allReferencingCompilations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"EnumValue","value":"hotness_DESC"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SeoMetaTags"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"RecordInterface"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_seoMetaTags"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tag"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}}]}}]} as unknown as DocumentNode<ArtistQuery, ArtistQueryVariables>;
+export const CompilationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Compilation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"slug"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"compilation"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"slug"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"slug"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"SeoMetaTags"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"hotness"}},{"kind":"Field","name":{"kind":"Name","value":"songs"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"externalId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"artist"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}}]}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SeoMetaTags"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"RecordInterface"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_seoMetaTags"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tag"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}}]}}]} as unknown as DocumentNode<CompilationQuery, CompilationQueryVariables>;
+export const SongDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Song"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"externalId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"song"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"externalId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"externalId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"SeoMetaTags"}},{"kind":"Field","name":{"kind":"Name","value":"externalId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"year"}},{"kind":"Field","name":{"kind":"Name","value":"durationSecs"}},{"kind":"Field","name":{"kind":"Name","value":"artist"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","alias":{"kind":"Name","value":"compilations"},"name":{"kind":"Name","value":"_allReferencingCompilations"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"orderBy"},"value":{"kind":"EnumValue","value":"hotness_DESC"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"SeoMetaTags"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"RecordInterface"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_seoMetaTags"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tag"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"}},{"kind":"Field","name":{"kind":"Name","value":"content"}}]}}]}}]} as unknown as DocumentNode<SongQuery, SongQueryVariables>;
